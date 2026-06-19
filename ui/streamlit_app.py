@@ -5,6 +5,7 @@ API_URL = "http://127.0.0.1:8000/chat"
 
 st.set_page_config(
     page_title="AI Operations Assistant",
+    page_icon="🤖",
     layout="centered"
 )
 
