@@ -90,7 +90,7 @@ Interview value:
 
 Project features:
 
-- planned SQLite reservoir demo database;
+- SQLite reservoir demo database generated from synthetic seed data;
 - reservoir profiles;
 - satellite observations;
 - area-level reference table;

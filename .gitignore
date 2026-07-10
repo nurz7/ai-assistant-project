@@ -9,3 +9,5 @@ htmlcov/
 .vscode/
 data/raw/
 data/private/
+data/db/*.sqlite
+data/db/*.sqlite-*

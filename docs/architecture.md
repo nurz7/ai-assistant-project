@@ -40,7 +40,7 @@ Responsibilities:
 - call FastAPI endpoints;
 - show assistant answers;
 - show citations and warnings;
-- later show reservoir profiles, observations, comparisons, and reports;
+- show reservoir profiles, observations, comparisons, anomaly flags, and later reports;
 - stay demo-friendly for a 2-3 minute walkthrough.
 
 The UI should not contain core business logic.
@@ -62,7 +62,7 @@ Responsibilities:
 
 ### 3. API Routes
 
-Target paths:
+Current paths:
 
 ```text
 app/api/routes/chat.py
@@ -165,6 +165,8 @@ Responsibilities:
 - read satellite observations;
 - expose read-only data access methods;
 - keep SQL queries parameterized;
+- compare satellite-derived water area with passport area;
+- flag high cloud percentage and conflicting NDWI, MNDWI, and SCL estimates;
 - return warnings for missing or incomplete data.
 
 Suggested tables:
@@ -176,12 +178,12 @@ area_level_reference
 alerts
 ```
 
-### 8. Anomaly Service
+### 8. Anomaly Logic
 
-Target path:
+Current MVP location:
 
 ```text
-app/services/anomaly_service.py
+app/services/reservoir_service.py
 ```
 
 Responsibilities:
@@ -192,6 +194,8 @@ Responsibilities:
 - flag conflicting NDWI, MNDWI, and SCL area estimates;
 - flag missing observations;
 - avoid claiming exact water level unless validated area-level relationship data is available.
+
+This can be split into `app/services/anomaly_service.py` later if the anomaly logic grows beyond the basic MVP checks.
 
 ### 9. Report Service
 

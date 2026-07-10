@@ -2,7 +2,7 @@
 
 ## Date
 
-2026-07-08
+2026-07-10
 
 ## Scope
 
@@ -18,7 +18,7 @@ The work focused on the nearest implementation tasks:
 2. Finalize mock/LLM behavior for the new domain.
 3. Add a reservoir methodology RAG skeleton with sources.
 
-No SQLite reservoir database, report service, map visualization, or external integrations were added in this step.
+The initial RAG step did not include the reservoir database. The Phase 3 update now adds synthetic SQLite-backed reservoir data tools. Report service, map visualization, and external integrations are still out of scope for this step.
 
 ## What Changed
 
@@ -62,7 +62,8 @@ Current behavior:
 
 - methodology questions use retrieval;
 - unsupported methodology questions are refused;
-- reservoir lookup, observation analysis, and report generation return a safe warning because structured reservoir tools are not implemented yet.
+- reservoir lookup and observation analysis use synthetic SQLite demo data;
+- report generation returns a safe Phase 4 warning.
 
 Why:
 
@@ -216,25 +217,70 @@ citation_rate: 100.0% (required 100.0%)
 PASS
 ```
 
+These results describe the initial methodology RAG baseline before Phase 3.
+
 ## Current Limitations
 
-- Reservoir profile lookup is not implemented yet.
-- Satellite observation lookup is not implemented yet.
-- Area comparison with passport area is not implemented yet.
-- Anomaly service is not implemented yet.
 - Monitoring report generation is not implemented yet.
+- Dedicated report and reservoir endpoints are not implemented yet; structured tools are exposed through `/chat`.
+- Basic anomaly checks live in `reservoir_service.py`; they can be split into a dedicated anomaly service later if needed.
 - API smoke test passed through a local FastAPI server.
 - Streamlit server was started successfully, but browser-level UI submission was not recorded as a full manual E2E test.
 - The RAG layer is local lexical retrieval, not embeddings.
 
+## Phase 3 Update: Reservoir Demo Database
+
+Added:
+
+- `app/db/database.py`;
+- `app/db/seed_data.py`;
+- `app/services/reservoir_service.py`;
+- generated local SQLite path `data/db/reservoir_demo.sqlite`;
+- synthetic seed records for `reservoirs`, `satellite_observations`, `area_level_reference`, and `alerts`;
+- read-only service functions:
+  - `get_reservoir_summary`;
+  - `get_observations`;
+  - `compare_area_to_passport`;
+  - `find_area_anomalies`;
+- structured response fields:
+  - `observations`;
+  - `anomaly_flags`;
+- Streamlit rendering for observation tables and anomaly flags;
+- structured eval checks for observation lookup and calculation correctness.
+
+The SQLite file is generated from seed data and ignored by git. This keeps the synthetic data transparent in source code while still giving the app a real local SQL workflow.
+
+## Phase 3 Verification
+
+Commands run:
+
+```bash
+python -m pytest -q
+python -m evals.run_evals
+```
+
+Results:
+
+```text
+33 passed
+
+Cases: 24
+supported_top1_accuracy: 100.0% (required 90.0%)
+unsupported_refusal_accuracy: 100.0% (required 95.0%)
+citation_rate: 100.0% (required 100.0%)
+structured_success_rate: 100.0% (required 100.0%)
+calculation_check_rate: 100.0% (required 100.0%)
+PASS
+```
+
 ## Next Recommended Branch
 
 ```text
-feature/reservoir-demo-db
+feature/monitoring-report-generation
 ```
 
 ## Next 3 Implementation Tasks
 
-1. Add SQLite schema and synthetic seed data for `reservoirs`, `satellite_observations`, `area_level_reference`, and optional `alerts`.
-2. Implement read-only reservoir service functions: `get_reservoir_summary` and `get_observations`.
-3. Implement `compare_area_to_passport` and basic anomaly checks with tests.
+1. Implement `report_service.py`.
+2. Generate short monitoring reports from RAG context, reservoir profile, observations, comparisons, anomaly flags, warnings, and limitations.
+3. Add tests/evals for report generation and exact-water-level refusal behavior.

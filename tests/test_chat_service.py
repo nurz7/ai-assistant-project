@@ -3,6 +3,12 @@ import unittest
 from unittest.mock import AsyncMock, patch
 
 from app.models.documents import DocumentChunk, SearchResult
+from app.models.schemas import (
+    AnomalyFlag,
+    CalculationResult,
+    ReservoirObservation,
+    ReservoirReference,
+)
 from app.services import chat_service
 
 
@@ -48,6 +54,8 @@ class ChatServiceTests(unittest.TestCase):
                 ],
                 "reservoir": None,
                 "calculation_result": None,
+                "observations": [],
+                "anomaly_flags": [],
                 "warnings": [],
             },
         )
@@ -73,7 +81,7 @@ class ChatServiceTests(unittest.TestCase):
         self.assertEqual(response.warnings, [chat_service.NO_CONTEXT_WARNING])
         generate_mock.assert_not_called()
 
-    def test_process_chat_returns_structured_data_warning_for_report_request(self) -> None:
+    def test_process_chat_returns_phase_warning_for_report_request(self) -> None:
         with (
             patch.object(
                 chat_service,
@@ -93,6 +101,107 @@ class ChatServiceTests(unittest.TestCase):
 
         self.assertEqual(response.intent, "unsupported")
         self.assertEqual(response.sources, [])
-        self.assertEqual(response.warnings, [chat_service.STRUCTURED_DATA_WARNING])
+        self.assertEqual(response.warnings, [chat_service.REPORT_GENERATION_WARNING])
         retrieve_mock.assert_not_called()
         generate_mock.assert_not_called()
+
+    def test_process_chat_returns_reservoir_profile(self) -> None:
+        reservoir = ReservoirReference(
+            name="Tasmola",
+            region="Akmola Region",
+            passport_area_km2=4.20,
+            normal_level_m=352.4,
+            dead_level_m=346.1,
+            latitude=50.1234,
+            longitude=71.4567,
+            notes="Synthetic demo record.",
+        )
+        with (
+            patch.object(
+                chat_service,
+                "extract_reservoir_name",
+                return_value="Tasmola",
+            ),
+            patch.object(
+                chat_service,
+                "get_reservoir_summary",
+                return_value=reservoir,
+            ),
+            patch.object(chat_service, "get_llm_mode", return_value="mock"),
+        ):
+            response = asyncio.run(chat_service.process_chat("Show Tasmola profile"))
+
+        self.assertEqual(response.intent, "reservoir_lookup")
+        self.assertEqual(response.reservoir, reservoir)
+        self.assertIn("Passport area: 4.20 km2", response.answer)
+        self.assertEqual(
+            response.warnings,
+            [chat_service.DEMO_DATA_WARNING, chat_service.WATER_LEVEL_WARNING],
+        )
+
+    def test_process_chat_returns_observation_analysis(self) -> None:
+        reservoir = ReservoirReference(
+            name="Tasmola",
+            region="Akmola Region",
+            passport_area_km2=4.20,
+        )
+        observation = ReservoirObservation(
+            observation_id=1,
+            observation_date="2025-05-03",
+            source="Sentinel-2 L2A",
+            scl_water_area_km2=3.82,
+            mndwi_area_km2=3.94,
+            ndwi_area_km2=3.75,
+            cloud_percent=8.5,
+            roi_area_km2=5.10,
+            method_version="demo-v0.1",
+        )
+        calculation = CalculationResult(
+            metric="mndwi_area_vs_passport_area_percent_difference",
+            value=-6.19,
+            unit="%",
+            explanation="MNDWI area was lower than passport area.",
+        )
+        flag = AnomalyFlag(
+            observation_id=1,
+            observation_date="2025-05-03",
+            alert_type="method_conflict",
+            severity="medium",
+            message="Synthetic flag.",
+        )
+        with (
+            patch.object(
+                chat_service,
+                "extract_reservoir_name",
+                return_value="Tasmola",
+            ),
+            patch.object(
+                chat_service,
+                "get_reservoir_summary",
+                return_value=reservoir,
+            ),
+            patch.object(
+                chat_service,
+                "get_observations",
+                return_value=[observation],
+            ),
+            patch.object(
+                chat_service,
+                "compare_area_to_passport",
+                return_value=calculation,
+            ),
+            patch.object(
+                chat_service,
+                "find_area_anomalies",
+                return_value=[flag],
+            ),
+            patch.object(chat_service, "get_llm_mode", return_value="mock"),
+        ):
+            response = asyncio.run(
+                chat_service.process_chat("Show Tasmola observations for May 2025")
+            )
+
+        self.assertEqual(response.intent, "observation_analysis")
+        self.assertEqual(response.observations, [observation])
+        self.assertEqual(response.anomaly_flags, [flag])
+        self.assertEqual(response.calculation_result, calculation)

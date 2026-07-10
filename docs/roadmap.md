@@ -15,9 +15,9 @@ The project should be understandable to recruiters, hiring managers, and technic
 
 ## Current Phase
 
-Phase 0 documentation and repositioning is complete. Phase 1 service-layer stabilization and a Phase 2 methodology RAG skeleton are implemented for the reservoir-monitoring direction.
+Phase 0 documentation and repositioning is complete. Phase 1 service-layer stabilization, Phase 2 methodology RAG, and Phase 3 synthetic reservoir demo data tools are implemented for the reservoir-monitoring direction.
 
-The next implementation work should add the synthetic reservoir demo database and read-only reservoir tools in Phase 3.
+The next implementation work should add Phase 4 monitoring report generation that combines methodology context with structured reservoir observations and anomaly flags.
 
 ## Phase 0: Documentation and Project Repositioning
 
@@ -102,21 +102,21 @@ Definition of done:
 
 ## Phase 3: Reservoir Demo Database and Read-Only Tools
 
-Status: planned
+Status: implemented
 
 Tasks:
 
-- [ ] create SQLite schema for synthetic/demo reservoir data;
-- [ ] add `reservoirs` table;
-- [ ] add `satellite_observations` table;
-- [ ] add `area_level_reference` table;
-- [ ] add `alerts` table if needed;
-- [ ] seed demo data for a small number of reservoirs such as Tasmola;
-- [ ] implement `get_reservoir_summary`;
-- [ ] implement `get_observations`;
-- [ ] implement `compare_area_to_passport`;
-- [ ] implement `find_area_anomalies`;
-- [ ] add tests for data access and calculations.
+- [x] create SQLite schema for synthetic/demo reservoir data;
+- [x] add `reservoirs` table;
+- [x] add `satellite_observations` table;
+- [x] add `area_level_reference` table;
+- [x] add `alerts` table if needed;
+- [x] seed demo data for a small number of reservoirs such as Tasmola;
+- [x] implement `get_reservoir_summary`;
+- [x] implement `get_observations`;
+- [x] implement `compare_area_to_passport`;
+- [x] implement `find_area_anomalies`;
+- [x] add tests for data access and calculations.
 
 Definition of done:
 
@@ -160,12 +160,12 @@ Tasks:
 - [ ] add methodology supported questions;
 - [ ] add unsupported questions;
 - [ ] add citation-required checks;
-- [ ] add calculation checks;
+- [x] add calculation checks;
 - [ ] add prompt injection attempts;
 - [ ] adapt or create `evals/run_evals.py`;
 - [ ] track citation behavior;
 - [ ] track refusal behavior;
-- [ ] track calculation correctness;
+- [x] track calculation correctness;
 - [ ] track latency and basic run metadata;
 - [ ] add CI when the local suite is stable.
 

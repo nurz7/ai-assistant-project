@@ -26,6 +26,9 @@ class Settings:
             os.getenv("SOP_DOCS_PATH", "data/docs"),
         )
     )
+    reservoir_db_path: Path = _resolve_project_path(
+        os.getenv("RESERVOIR_DB_PATH", "data/db/reservoir_demo.sqlite")
+    )
 
     @property
     def sop_docs_path(self) -> Path:
