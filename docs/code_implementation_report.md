@@ -230,6 +230,12 @@ These results describe the initial methodology RAG baseline before Phase 3.
 
 ## Phase 3 Update: Reservoir Demo Database
 
+Detailed Phase 3 report:
+
+```text
+docs/phase3_reservoir_demo_db_report.md
+```
+
 Added:
 
 - `app/db/database.py`;
