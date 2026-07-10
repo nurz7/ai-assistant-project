@@ -1,40 +1,22 @@
 from fastapi import FastAPI
-from pydantic import BaseModel
 
-from app.services.llm_client import generate_llm_answer
+from app.api.routes.chat import router as chat_router
+
+APP_VERSION = "0.4.0"
 
 app = FastAPI(
-    title="AI Operations Assistant",
-    description="Pet project for AI implementation in business workflows",
-    version="0.2.0"
+    title="AI/GIS Copilot for Reservoir Monitoring",
+    description="AI/GIS assistant prototype for reservoir monitoring workflows",
+    version=APP_VERSION,
 )
 
-
-class ChatRequest(BaseModel):
-    message: str
-
-
-class ChatResponse(BaseModel):
-    user_message: str
-    answer: str
-    mode: str
+app.include_router(chat_router)
 
 
 @app.get("/")
-def home():
+async def home() -> dict[str, str]:
     return {
-        "message": "AI Operations Assistant is running",
+        "message": "AI/GIS Copilot for Reservoir Monitoring is running",
         "status": "ok",
-        "version": "0.2.0"
+        "version": APP_VERSION,
     }
-
-
-@app.post("/chat", response_model=ChatResponse)
-def chat(request: ChatRequest):
-    answer = generate_llm_answer(request.message)
-
-    return ChatResponse(
-        user_message=request.message,
-        answer=answer,
-        mode="llm_or_mock"
-    )
