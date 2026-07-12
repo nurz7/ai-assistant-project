@@ -150,10 +150,10 @@ Status: automated checks passed; manual UI smoke test pending
 Done:
 
 - updated FastAPI app metadata to `AI/GIS Copilot for Reservoir Monitoring`;
-- expanded chat response schema with `intent`, `reservoir`, `calculation_result`, `sources`, and `warnings`;
+- expanded chat response schema with `intent`, `reservoir`, `calculation_result`, `observations`, `anomaly_flags`, `sources`, and `warnings`;
 - kept `/chat` as a thin route calling `chat_service`;
 - added simple intent classification for methodology Q&A, reservoir lookup, observation analysis, and report generation;
-- kept structured reservoir lookup/report requests in safe refusal mode until the database tools exist;
+- kept report requests in safe refusal mode until Phase 4 report generation exists;
 - updated mock and real LLM instructions from support/SOP wording to reservoir monitoring methodology wording;
 - added `METHODOLOGY_DOCS_PATH` configuration with backward-compatible `SOP_DOCS_PATH` fallback;
 - replaced old support SOP demo documents with reservoir methodology documents;
@@ -177,9 +177,9 @@ PASS
 
 Next:
 
-- add synthetic SQLite reservoir database;
-- implement read-only reservoir summary and observation lookup tools;
-- implement area comparison and basic anomaly checks.
+- add monitoring report generation;
+- combine methodology context with structured observations;
+- add report tests and evals.
 
 ## Current State
 
@@ -191,14 +191,13 @@ Working or already present in the repository:
 - mock/LLM client;
 - service-layer structure for chat, retrieval, document loading, and LLM access;
 - reservoir methodology retrieval with citations;
-- refusal behavior for unsupported and not-yet-implemented structured workflows;
+- SQLite-backed reservoir profile and observation lookup;
+- passport-area comparison and basic anomaly flags;
+- refusal behavior for unsupported and not-yet-implemented report workflows;
 - reservoir-specific tests and eval cases.
 
 Not yet implemented for the reservoir domain:
 
-- synthetic SQLite reservoir database;
-- read-only reservoir data tools;
-- anomaly service;
 - report service;
 - optional GIS visualization.
 
@@ -207,14 +206,14 @@ Not yet implemented for the reservoir domain:
 Recommended next branch:
 
 ```text
-feature/reservoir-demo-db
+feature/monitoring-report-generation
 ```
 
 Next implementation tasks:
 
-1. Add SQLite schema and synthetic seed data for reservoir profiles and satellite observations.
-2. Implement read-only reservoir service functions.
-3. Add area comparison and basic anomaly checks with tests.
+1. Implement `report_service.py`.
+2. Generate short monitoring reports from methodology context and structured observations.
+3. Add tests/evals for report generation and exact-water-level refusal behavior.
 
 ## Progress Checklist
 
@@ -233,34 +232,34 @@ Next implementation tasks:
 
 - [x] FastAPI app exists
 - [x] `/chat` endpoint exists
-- [ ] service layer audited against reservoir-monitoring schema
-- [ ] typed settings finalized
-- [ ] reservoir-specific intent handling added
+- [x] service layer audited against reservoir-monitoring schema
+- [x] typed settings finalized
+- [x] reservoir-specific intent handling added
 
 ### UI
 
 - [x] Streamlit app exists
-- [ ] citations confirmed for reservoir methodology answers
-- [ ] reservoir observation output added
+- [x] citations confirmed for reservoir methodology answers
+- [x] reservoir observation output added
 - [ ] report output added
 - [ ] optional map visualization added
 
 ### RAG
 
 - [x] earlier retrieval prototype exists
-- [ ] reservoir methodology documents added
-- [ ] reservoir chunking/retrieval verified
-- [ ] citations shown in responses
-- [ ] unsupported reservoir questions refused
+- [x] reservoir methodology documents added
+- [x] reservoir chunking/retrieval verified
+- [x] citations shown in responses
+- [x] unsupported reservoir questions refused
 
 ### Reservoir Data
 
-- [ ] synthetic reservoir data model created
-- [ ] SQLite database added
-- [ ] `get_reservoir_summary` added
-- [ ] `get_observations` added
-- [ ] `compare_area_to_passport` added
-- [ ] `find_area_anomalies` added
+- [x] synthetic reservoir data model created
+- [x] SQLite database added
+- [x] `get_reservoir_summary` added
+- [x] `get_observations` added
+- [x] `compare_area_to_passport` added
+- [x] `find_area_anomalies` added
 
 ### Reports
 
@@ -271,11 +270,11 @@ Next implementation tasks:
 ### Evaluation
 
 - [x] earlier eval scaffolding may exist
-- [ ] reservoir-specific eval questions added
-- [ ] citation checks added or adapted
-- [ ] refusal checks added or adapted
-- [ ] calculation checks added
-- [ ] prompt injection tests added
+- [x] reservoir-specific eval questions added
+- [x] citation checks added or adapted
+- [x] refusal checks added or adapted
+- [x] calculation checks added
+- [x] prompt injection tests added
 - [ ] latency/basic logging added
 
 ## Key Decisions
@@ -318,9 +317,6 @@ Reason:
 
 ## Open Questions
 
-- Which reservoir names should be used for synthetic demo data besides Tasmola?
-- Should the first methodology documents be fully synthetic, based on public documentation summaries, or a mix of both?
-- Should the first reservoir database be checked into the repo as a seed script only or as a generated demo SQLite file?
 - Which LLM provider should be used for the final live demo after mock mode is stable?
 
 ## Notes for Future Development

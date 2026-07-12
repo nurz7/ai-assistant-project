@@ -173,11 +173,11 @@ Do not commit:
 - sensitive infrastructure records;
 - private logs.
 
-## D10: Next Implementation Phase
+## D10: Reservoir Demo Data Phase
 
-Status: accepted
+Status: completed
 
-The next coding branch should be:
+The implementation branch was:
 
 ```text
 feature/reservoir-demo-db
@@ -188,3 +188,25 @@ Scope:
 1. Add SQLite schema and synthetic seed data.
 2. Add read-only reservoir summary and observation lookup.
 3. Add area comparison and basic anomaly checks with tests.
+
+Outcome:
+
+- SQLite schema and synthetic seed data were added.
+- Read-only reservoir tools were implemented.
+- Basic passport-area comparison and anomaly flags were added.
+
+## D11: Next Implementation Phase
+
+Status: accepted
+
+The next coding branch should be:
+
+```text
+feature/monitoring-report-generation
+```
+
+Scope:
+
+1. Add `report_service.py`.
+2. Generate short monitoring reports from methodology context and structured reservoir observations.
+3. Add tests/evals for report generation and exact-water-level refusal behavior.

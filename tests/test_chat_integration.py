@@ -79,6 +79,23 @@ class ChatIntegrationTests(unittest.TestCase):
         self.assertEqual(data["intent"], "methodology_qa")
         self.assertEqual(data["sources"][0]["document"], "sentinel2_water_detection.md")
 
+    def test_structured_observation_question_flows_through_asgi_app(self) -> None:
+        status_code, data = asyncio.run(
+            request_app(
+                "POST",
+                "/chat",
+                json_body={"message": "Show Tasmola observations for May 2025."},
+            )
+        )
+
+        self.assertEqual(status_code, 200)
+        self.assertEqual(data["mode"], "mock")
+        self.assertEqual(data["intent"], "observation_analysis")
+        self.assertEqual(data["reservoir"]["name"], "Tasmola")
+        self.assertEqual(len(data["observations"]), 3)
+        self.assertEqual(data["calculation_result"]["value"], -13.1)
+        self.assertGreaterEqual(len(data["anomaly_flags"]), 2)
+
     def test_invalid_request_is_rejected_by_fastapi_validation(self) -> None:
         status_code, data = asyncio.run(
             request_app("POST", "/chat", json_body={"message": "   "})

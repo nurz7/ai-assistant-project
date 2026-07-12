@@ -51,6 +51,14 @@ if st.button("Send"):
                     st.subheader("Calculation")
                     st.write(data["calculation_result"])
 
+                if data.get("observations"):
+                    st.subheader("Satellite observations")
+                    st.dataframe(data["observations"], use_container_width=True)
+
+                if data.get("anomaly_flags"):
+                    st.subheader("Anomaly flags")
+                    st.dataframe(data["anomaly_flags"], use_container_width=True)
+
                 if data.get("sources"):
                     st.subheader("Sources")
                     for source in data["sources"]:

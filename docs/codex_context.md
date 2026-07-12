@@ -27,28 +27,28 @@ Known current state:
 - `/chat` endpoint exists;
 - mock/LLM client exists and defaults to mock mode;
 - service-oriented structure exists for chat, retrieval, document loading, and LLM access;
-- reservoir-oriented response schema includes intent, sources, reservoir, calculation result, and warnings;
+- reservoir-oriented response schema includes intent, sources, reservoir, calculation result, observations, anomaly flags, and warnings;
 - reservoir methodology documents exist in `data/docs/`;
 - local retrieval, citations, refusal behavior, tests, and eval cases are implemented for the methodology RAG skeleton;
-- structured reservoir data tools are not implemented yet.
+- SQLite-backed synthetic reservoir data tools are implemented for profiles, observations, passport-area comparison, and anomaly flagging.
 
-Important: application code may still contain support/operations wording or SOP demo data. Do not change code unless the task explicitly asks for implementation work.
+Important: do not connect this MVP to real government, operational, private, or destructive systems.
 
 ## Next Best Task
 
 Next recommended coding branch:
 
 ```text
-feature/reservoir-demo-db
+feature/monitoring-report-generation
 ```
 
 Next three implementation tasks:
 
-1. Add SQLite schema and synthetic seed data for reservoirs and satellite observations.
-2. Implement read-only `reservoir_service.py` functions for reservoir summary and observation lookup.
-3. Add `compare_area_to_passport` and basic anomaly checks with tests.
+1. Implement `report_service.py`.
+2. Generate short monitoring reports from methodology context, reservoir profile, observations, comparisons, anomaly flags, warnings, and limitations.
+3. Add tests/evals for report generation and refusal of exact water-level claims.
 
-The previous recommended tasks, service-layer stabilization, mock/LLM settings, and methodology RAG skeleton, are implemented for the current MVP baseline.
+The previous recommended tasks, service-layer stabilization, mock/LLM settings, methodology RAG, and reservoir demo data tools, are implemented for the current MVP baseline.
 
 ## Target Folder Structure
 
@@ -253,8 +253,7 @@ Use focused feature branches:
 feature/service-layer-refactor
 feature/methodology-rag
 feature/reservoir-demo-db
-feature/anomaly-service
-feature/report-generation
+feature/monitoring-report-generation
 feature/evaluation-and-logging
 feature/gis-visualization
 ```

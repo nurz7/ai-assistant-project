@@ -104,25 +104,24 @@ Implemented in the existing repository:
 - Streamlit UI;
 - mock/LLM-ready client;
 - service-oriented backend structure;
-- reservoir-oriented chat response schema with `intent`, `sources`, `reservoir`, `calculation_result`, and `warnings`;
+- reservoir-oriented chat response schema with `intent`, `sources`, `reservoir`, `calculation_result`, `observations`, `anomaly_flags`, and `warnings`;
 - reservoir methodology documents for Sentinel-2, NDWI, MNDWI, SCL water class, ROI, cloud filtering, area calculation, reference values, and reporting;
 - local methodology retrieval with source citations;
-- refusal behavior for unsupported, unsafe, and structured-data requests that are not implemented yet;
-- reservoir-specific test and evaluation dataset with 24 cases.
+- SQLite schema and synthetic seed data for demo reservoir observations;
+- read-only reservoir tools for profiles, observations, passport-area comparison, and anomaly flagging;
+- refusal behavior for unsupported, unsafe, and not-yet-implemented report-generation requests;
+- reservoir-specific test and evaluation dataset with 24 methodology cases plus structured-data checks.
 
 Repository repositioning completed in this branch:
 
 - project repositioned from a generic support/operations copilot to `AI/GIS Copilot for Reservoir Monitoring`;
 - MVP scope, architecture, roadmap, demo script, and coding-agent instructions aligned to reservoir monitoring;
-- backend, methodology RAG, tests, and evals updated for the reservoir-monitoring direction.
+- backend, methodology RAG, structured demo data tools, tests, and evals updated for the reservoir-monitoring direction.
 
 Not yet implemented for the reservoir domain:
 
-- SQLite reservoir demo database;
-- read-only reservoir data tools;
-- area comparison and anomaly services;
 - monitoring report service;
-- structured-data calculation and report evaluation cases;
+- report-generation evaluation cases;
 - GIS visualization.
 
 ## Planned Roadmap

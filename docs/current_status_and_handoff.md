@@ -1,10 +1,10 @@
 # Текущее состояние проекта и handoff
 
-Дата обновления: 2026-07-08
+Дата обновления: 2026-07-10
 
 ## 1. Краткий итог
 
-Проект сейчас называется:
+Проект:
 
 ```text
 AI/GIS Copilot for Reservoir Monitoring
@@ -13,12 +13,12 @@ AI/GIS Copilot for Reservoir Monitoring
 Текущий этап разработки:
 
 ```text
-Reservoir methodology RAG baseline implemented
+Phase 3 reservoir demo database and read-only tools implemented
 ```
 
-Это уже не generic support/operations assistant. Проект переориентирован на AI/GIS workflow для мониторинга малых водохранилищ, flood-season analysis, satellite-derived water area, methodology Q&A, citations, refusal behavior и будущие structured reservoir tools.
+Проект уже покрывает methodology RAG с citations/refusal behavior и первые structured-data сценарии по синтетическим наблюдениям водохранилищ.
 
-## 2. Что уже реализовано
+## 2. Что реализовано
 
 В рабочей версии есть:
 
@@ -28,17 +28,20 @@ Reservoir methodology RAG baseline implemented
 - thin route + schema + service structure;
 - mock/LLM client;
 - mock mode по умолчанию;
-- reservoir-oriented response schema;
 - methodology document loader;
 - local lexical retrieval;
 - source citations;
 - refusal behavior;
-- reservoir-specific evaluation dataset;
-- backend/unit/integration tests.
+- generated local SQLite demo database;
+- synthetic seed data for `reservoirs`, `satellite_observations`, `area_level_reference`, and `alerts`;
+- read-only reservoir service;
+- basic passport-area comparison;
+- basic anomaly flagging;
+- reservoir-specific tests and evals.
 
-Текущий `/chat` умеет отвечать на methodology questions по документам из `data/docs/`.
+## 3. Что умеет `/chat`
 
-Пример поддерживаемого вопроса:
+Methodology questions:
 
 ```text
 What is MNDWI used for in water surface detection?
@@ -47,190 +50,115 @@ What is MNDWI used for in water surface detection?
 Ожидается:
 
 - `intent = methodology_qa`;
-- ответ из retrieved methodology context;
+- answer from retrieved methodology context;
 - source citation;
 - `mode = mock`.
 
-## 3. Что изменилось в последнем кодовом этапе
-
-Изменены основные файлы:
+Reservoir profile:
 
 ```text
-app/models/schemas.py
+Tasmola reservoir profile
+```
+
+Ожидается:
+
+- `intent = reservoir_lookup`;
+- synthetic reservoir summary;
+- passport area, normal level, dead level, coordinates, notes;
+- warnings about synthetic data and water-level limitations.
+
+Observation analysis:
+
+```text
+Show Tasmola observations for May 2025.
+```
+
+Ожидается:
+
+- `intent = observation_analysis`;
+- 3 synthetic Sentinel-2 observations;
+- SCL, MNDWI, NDWI water area values;
+- cloud percentage;
+- method version;
+- MNDWI vs passport-area comparison;
+- anomaly flags for high cloud and method conflict where relevant.
+
+Report generation:
+
+```text
+Generate a monitoring report for Tasmola for May 2025.
+```
+
+Пока возвращает safe refusal/warning. Это Phase 4.
+
+## 4. Основные файлы Phase 3
+
+```text
+app/db/database.py
+app/db/seed_data.py
+app/services/reservoir_service.py
 app/services/chat_service.py
-app/services/llm_client.py
-app/services/retrieval_service.py
-app/services/document_loader.py
-app/core/config.py
-app/main.py
-ui/streamlit_app.py
-data/docs/
+app/models/schemas.py
+data/db/.gitkeep
 evals/questions.yaml
 evals/run_evals.py
-tests/
-docs/code_implementation_report.md
+tests/test_reservoir_service.py
 ```
 
-Добавлены или закреплены поля ответа:
+Локальная SQLite база создаётся из seed data при первом обращении по пути:
 
 ```text
-user_message
-answer
-mode
-intent
-sources
-reservoir
-calculation_result
-warnings
+data/db/reservoir_demo.sqlite
 ```
 
-Поддерживаемые intent values:
-
-```text
-methodology_qa
-reservoir_lookup
-observation_analysis
-report_generation
-unsupported
-```
-
-Важно: `reservoir_lookup`, `observation_analysis` и `report_generation` пока возвращают safe refusal/warning, потому что structured reservoir database еще не реализована.
-
-## 4. Methodology documents
-
-Старые support SOP документы заменены на reservoir methodology документы:
-
-```text
-data/docs/sentinel2_water_detection.md
-data/docs/reservoir_monitoring_workflow.md
-data/docs/reservoir_reference_values.md
-```
-
-Покрытые темы:
-
-- Sentinel-2;
-- NDWI;
-- MNDWI;
-- SCL water class;
-- ROI;
-- water mask extraction;
-- cloud filtering;
-- satellite-derived water area;
-- passport area;
-- normal level;
-- dead level;
-- area-level relationship;
-- anomaly flagging;
-- monitoring report.
+Файл базы игнорируется git. Источник demo data находится в `app/db/seed_data.py`.
 
 ## 5. Verification
 
-Автоматические проверки прошли:
+Автоматические проверки:
 
 ```text
 python -m pytest -q
-24 passed
+33 passed
 
 python -m evals.run_evals
 Cases: 24
 supported_top1_accuracy: 100.0% (required 90.0%)
 unsupported_refusal_accuracy: 100.0% (required 95.0%)
 citation_rate: 100.0% (required 100.0%)
+structured_success_rate: 100.0% (required 100.0%)
+calculation_check_rate: 100.0% (required 100.0%)
 PASS
 ```
 
-API smoke test также был выполнен через локальный FastAPI server:
-
-```text
-GET /
-POST /chat
-```
-
-Проверенный вопрос:
-
-```text
-What is MNDWI used for in water surface detection?
-```
-
-Результат:
-
-- HTTP 200;
-- `mode = mock`;
-- `intent = methodology_qa`;
-- source document `sentinel2_water_detection.md`;
-- source section `MNDWI Water Mask`.
-
-Streamlit server был запущен локально, но browser-level сценарий с ручным вводом вопроса в UI не фиксировался как полноценный E2E test.
-
-## 6. Текущее Git-состояние
-
-В рабочем дереве есть незакоммиченные и неотслеживаемые файлы.
-
-Это ожидаемо для текущей сессии, потому что проект до этого уже содержал незакоммиченный service-layer/RAG набор файлов.
-
-Перед коммитом рекомендуется внимательно разделить изменения по смыслу:
-
-```text
-1. Documentation repositioning
-2. Reservoir chat schema and methodology RAG baseline
-3. Reservoir eval dataset and tests
-```
-
-Не использовать `git reset --hard` и не откатывать файлы без явного решения владельца проекта.
-
-## 7. Что еще не реализовано
+## 6. Что ещё не реализовано
 
 Не реализовано:
 
-- SQLite reservoir database;
-- synthetic reservoir seed data;
-- `reservoir_service.py`;
-- `get_reservoir_summary`;
-- `get_observations`;
-- `compare_area_to_passport`;
-- `find_area_anomalies`;
-- `anomaly_service.py`;
-- `report_service.py`;
-- real monitoring report generation;
+- full monitoring report service;
+- combining RAG methodology notes with structured observations in generated reports;
+- dedicated `/reports` endpoint;
 - map/GeoJSON visualization;
-- real LLM smoke test.
+- real LLM smoke test;
+- browser-level Streamlit E2E test.
 
-Текущий проект не должен утверждать, что умеет рассчитывать точный уровень воды. Пока реализована только methodology RAG baseline.
+Важно: проект всё ещё не должен утверждать, что рассчитывает точный уровень воды. Satellite-derived water area сравнивается с passport area только как demo decision-support signal.
 
-## 8. Следующая ветка
+## 7. Следующая ветка после merge
 
 Рекомендуемая следующая ветка:
 
 ```text
-feature/reservoir-demo-db
+feature/monitoring-report-generation
 ```
 
-## 9. Следующие 3 задачи
+## 8. Следующие 3 задачи
 
-1. Добавить SQLite schema и synthetic seed data для:
+1. Реализовать `report_service.py`.
+2. Сгенерировать короткий monitoring report из reservoir summary, observations, comparison, anomaly flags, methodology notes, sources, warnings, and limitations.
+3. Добавить tests/evals для report generation и отказа от exact water level claims.
 
-```text
-reservoirs
-satellite_observations
-area_level_reference
-alerts
-```
-
-2. Реализовать read-only reservoir service:
-
-```text
-get_reservoir_summary
-get_observations
-```
-
-3. Реализовать area comparison и basic anomaly checks:
-
-```text
-compare_area_to_passport
-find_area_anomalies
-```
-
-## 10. Правила для следующей сессии
+## 9. Правила для следующей сессии
 
 Сохранять ограничения:
 
@@ -244,9 +172,9 @@ find_area_anomalies
 - новые backend features должны иметь tests;
 - docs нужно обновлять вместе с архитектурными изменениями.
 
-## 11. Команды для проверки
+## 10. Команды для проверки
 
-Перед завершением следующего coding этапа запускать:
+Перед завершением coding этапа запускать:
 
 ```bash
 python -m pytest -q
@@ -260,32 +188,9 @@ uvicorn app.main:app --reload
 streamlit run ui/streamlit_app.py
 ```
 
-Если порт `8000` занят, можно использовать другой:
+Если порт `8000` занят:
 
 ```bash
 uvicorn app.main:app --host 127.0.0.1 --port 8015
 API_URL=http://127.0.0.1:8015/chat streamlit run ui/streamlit_app.py --server.port 8515
-```
-
-## 12. Где смотреть детали
-
-Основные документы:
-
-```text
-README.md
-AGENTS.md
-docs/project_scope.md
-docs/codex_context.md
-docs/architecture.md
-docs/roadmap.md
-docs/development_log.md
-docs/implementation_rules.md
-docs/code_implementation_report.md
-docs/domain_reservoir_monitoring.md
-```
-
-Кодовый отчет последнего этапа:
-
-```text
-docs/code_implementation_report.md
 ```
