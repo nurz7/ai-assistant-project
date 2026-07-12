@@ -40,3 +40,19 @@ class RetrievalServiceTests(unittest.TestCase):
         self.assertTrue(results)
         self.assertEqual(results[0].chunk.document, "sentinel2_water_detection.md")
         self.assertEqual(results[0].chunk.section, "MNDWI Water Mask")
+
+    def test_retrieves_russian_thesis_methodology_question(self) -> None:
+        results = retrieve_relevant_chunks(
+            "Как выполняется автоматический контроль качества временных рядов воды?"
+        )
+
+        self.assertTrue(results)
+        self.assertEqual(results[0].chunk.document, "thesis_satellite_pipeline.md")
+        self.assertEqual(results[0].chunk.section, "Automatic Quality Control")
+
+    def test_refuses_russian_exact_water_level_question(self) -> None:
+        results = retrieve_relevant_chunks(
+            "Какой точный уровень воды был в неизвестном водоеме?"
+        )
+
+        self.assertEqual(results, [])

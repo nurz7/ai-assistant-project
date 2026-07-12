@@ -11,3 +11,4 @@ data/raw/
 data/private/
 data/db/*.sqlite
 data/db/*.sqlite-*
+/Диссертация.zip

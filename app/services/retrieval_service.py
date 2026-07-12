@@ -5,7 +5,7 @@ from app.core.config import settings
 from app.models.documents import DocumentChunk, SearchResult
 from app.services.document_loader import load_document_chunks
 
-TOKEN_PATTERN = re.compile(r"[a-z0-9]+")
+TOKEN_PATTERN = re.compile(r"[^\W_]+", re.UNICODE)
 STOP_WORDS = {
     "a",
     "an",
@@ -46,6 +46,22 @@ STOP_WORDS = {
     "with",
     "you",
     "your",
+    "а",
+    "без",
+    "в",
+    "для",
+    "и",
+    "из",
+    "как",
+    "какое",
+    "какие",
+    "на",
+    "о",
+    "по",
+    "при",
+    "с",
+    "что",
+    "это",
 }
 TOKEN_ALIASES = {
     "areas": "area",
@@ -74,24 +90,55 @@ TOKEN_ALIASES = {
     "sentinel-2": "sentinel2",
     "suspicious": "anomaly",
     "warnings": "warning",
+    "водная": "вода",
+    "водной": "вода",
+    "водного": "вода",
+    "водоем": "водоем",
+    "водоемов": "водоем",
+    "водоемы": "водоем",
+    "воды": "вода",
+    "выполняется": "выполнять",
+    "временного": "временной",
+    "временные": "временной",
+    "временных": "временной",
+    "исследовательской": "исследование",
+    "используется": "использовать",
+    "качества": "качество",
+    "контроля": "контроль",
+    "наблюдений": "наблюдение",
+    "облачности": "облачность",
+    "обработке": "обработка",
+    "паводкового": "паводок",
+    "паводковое": "паводок",
+    "паводковом": "паводок",
+    "паводковый": "паводок",
+    "площади": "площадь",
+    "расчета": "расчет",
+    "спутниковых": "спутник",
+    "сравниваются": "сравнение",
+    "рядов": "ряд",
+    "уровня": "уровень",
+    "уровней": "уровень",
 }
 BLOCKED_REQUEST_PATTERN = re.compile(
     r"\b(api key|confidential|private|secret|delete|drop|truncate|update|insert|"
-    r"write|remove all)\b",
+    r"write|remove all|ключ api|конфиденциаль\w*|секрет\w*|удал\w*)\b",
     re.IGNORECASE,
 )
 STRUCTURED_LOOKUP_PATTERN = re.compile(
-    r"\b(show|list|get|generate)\b.*\b(observations?|report|tasmola)\b",
+    r"\b(show|list|get|generate)\b.*\b(observations?|report|tasmola)\b|"
+    r"\b(покажи|выведи|сформируй|создай)\b.*\b(наблюден\w*|отчет|отчёт)\b",
     re.IGNORECASE,
 )
 EXACT_LEVEL_LOOKUP_PATTERN = re.compile(
     r"\b(exact|actual)\b.*\bwater level\b|\bunknown reservoir\b|"
-    r"\b\d{4}-\d{2}-\d{2}\b",
+    r"\b\d{4}-\d{2}-\d{2}\b|\bточн\w*\b.*\bуров\w*\b.*\bвод\w*\b|"
+    r"\bнақты\b.*\bсу деңгейі\b",
     re.IGNORECASE,
 )
 METHODOLOGY_PATTERN = re.compile(
     r"\b(what|why|how|which|method|methodology|mean|used for|limitation|define|"
-    r"explain)\b",
+    r"explain|что|почему|как|какие|метод\w*|объясни\w*|ограничен\w*)\b",
     re.IGNORECASE,
 )
 

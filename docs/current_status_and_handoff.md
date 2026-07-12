@@ -1,6 +1,6 @@
 # Текущее состояние проекта и handoff
 
-Дата обновления: 2026-07-10
+Дата обновления: 2026-07-12
 
 ## 1. Краткий итог
 
@@ -13,10 +13,10 @@ AI/GIS Copilot for Reservoir Monitoring
 Текущий этап разработки:
 
 ```text
-Phase 3 reservoir demo database and read-only tools implemented
+Phase 4 monitoring report generation implemented
 ```
 
-Проект уже покрывает methodology RAG с citations/refusal behavior и первые structured-data сценарии по синтетическим наблюдениям водохранилищ.
+Проект покрывает methodology RAG с citations/refusal behavior, structured-data сценарии и grounded monitoring reports по синтетическим наблюдениям.
 
 ## 2. Что реализовано
 
@@ -29,7 +29,8 @@ Phase 3 reservoir demo database and read-only tools implemented
 - mock/LLM client;
 - mock mode по умолчанию;
 - methodology document loader;
-- local lexical retrieval;
+- Unicode-aware local lexical retrieval for English and Russian methodology questions;
+- sanitized thesis-informed methodology document and source audit;
 - source citations;
 - refusal behavior;
 - generated local SQLite demo database;
@@ -37,6 +38,10 @@ Phase 3 reservoir demo database and read-only tools implemented
 - read-only reservoir service;
 - basic passport-area comparison;
 - basic anomaly flagging;
+- thesis-informed automatic quality assessment with explicit reasons;
+- validation-only sanitized GEE CSV importer and synthetic sample;
+- monitoring report service;
+- report generation through `/chat` with methodology sources and limitations;
 - reservoir-specific tests and evals.
 
 ## 3. Что умеет `/chat`
@@ -89,20 +94,22 @@ Report generation:
 Generate a monitoring report for Tasmola for May 2025.
 ```
 
-Пока возвращает safe refusal/warning. Это Phase 4.
+Возвращает структурированный monitoring report с observations, passport-area comparison, anomaly flags, methodology notes, sources, warnings, limitations, and conclusion.
 
-## 4. Основные файлы Phase 3
+## 4. Основные файлы Phase 4
 
 ```text
 app/db/database.py
 app/db/seed_data.py
 app/services/reservoir_service.py
+app/services/report_service.py
 app/services/chat_service.py
 app/models/schemas.py
 data/db/.gitkeep
 evals/questions.yaml
 evals/run_evals.py
 tests/test_reservoir_service.py
+tests/test_report_service.py
 ```
 
 Локальная SQLite база создаётся из seed data при первом обращении по пути:
@@ -119,10 +126,10 @@ data/db/reservoir_demo.sqlite
 
 ```text
 python -m pytest -q
-33 passed
+45 passed
 
 python -m evals.run_evals
-Cases: 24
+Cases: 28
 supported_top1_accuracy: 100.0% (required 90.0%)
 unsupported_refusal_accuracy: 100.0% (required 95.0%)
 citation_rate: 100.0% (required 100.0%)
@@ -135,18 +142,18 @@ PASS
 
 Не реализовано:
 
-- full monitoring report service;
-- combining RAG methodology notes with structured observations in generated reports;
 - dedicated `/reports` endpoint;
 - map/GeoJSON visualization;
 - real LLM smoke test;
 - browser-level Streamlit E2E test.
+- latency/basic run logging;
+- CI automation.
 
 Важно: проект всё ещё не должен утверждать, что рассчитывает точный уровень воды. Satellite-derived water area сравнивается с passport area только как demo decision-support signal.
 
 ## 7. Следующая ветка после merge
 
-Рекомендуемая следующая ветка:
+Текущая ветка:
 
 ```text
 feature/monitoring-report-generation
@@ -154,9 +161,9 @@ feature/monitoring-report-generation
 
 ## 8. Следующие 3 задачи
 
-1. Реализовать `report_service.py`.
-2. Сгенерировать короткий monitoring report из reservoir summary, observations, comparison, anomaly flags, methodology notes, sources, warnings, and limitations.
-3. Добавить tests/evals для report generation и отказа от exact water level claims.
+1. Выполнить manual Streamlit smoke test для report generation.
+2. Добавить latency/basic run logging и расширить prompt-injection checks.
+3. Добавить CI для pytest и eval runner.
 
 ## 9. Правила для следующей сессии
 

@@ -191,6 +191,52 @@ async def _evaluate_structured_cases(cases: list[dict[str, Any]]) -> dict[str, A
                 }
             )
 
+        min_sources = int(case.get("min_sources", 0))
+        if len(response.sources) < min_sources:
+            case_passed = False
+            failures.append(
+                {
+                    "id": case["id"],
+                    "reason": (
+                        f"expected at least {min_sources} sources, "
+                        f"got {len(response.sources)}"
+                    ),
+                }
+            )
+
+        missing_terms = [
+            term
+            for term in case.get("required_answer_terms", [])
+            if term not in response.answer
+        ]
+        if missing_terms:
+            case_passed = False
+            failures.append(
+                {
+                    "id": case["id"],
+                    "reason": f"answer is missing required terms: {missing_terms}",
+                }
+            )
+
+        expected_quality_status = case.get("expected_quality_status")
+        if expected_quality_status:
+            actual_quality_status = (
+                response.quality_assessment.status
+                if response.quality_assessment
+                else None
+            )
+            if actual_quality_status != expected_quality_status:
+                case_passed = False
+                failures.append(
+                    {
+                        "id": case["id"],
+                        "reason": (
+                            f"expected quality status {expected_quality_status}, "
+                            f"got {actual_quality_status}"
+                        ),
+                    }
+                )
+
         if "expected_calculation_metric" in case:
             calculation_total += 1
             calculation = response.calculation_result

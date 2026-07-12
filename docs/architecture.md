@@ -17,6 +17,8 @@ Retrieval service
   ->
 Reservoir data service
   ->
+Quality service
+  ->
 Report service
   ->
 Evaluation layer
@@ -137,9 +139,13 @@ Responsibilities:
 
 - load methodology documents;
 - split documents into chunks;
-- search relevant chunks;
+- search relevant chunks with Unicode-aware English/Russian lexical matching;
 - return source metadata;
 - support refusal behavior when relevant context is weak or missing.
+
+The public knowledge base may include sanitized methodology derived from the
+owner's research, but raw coordinates, real observations, passport values, and
+preliminary calculated levels remain outside the public MVP.
 
 Required source metadata:
 

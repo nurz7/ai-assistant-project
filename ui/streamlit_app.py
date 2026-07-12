@@ -59,6 +59,10 @@ if st.button("Send"):
                     st.subheader("Anomaly flags")
                     st.dataframe(data["anomaly_flags"], use_container_width=True)
 
+                if data.get("quality_assessment"):
+                    st.subheader("Automatic quality control")
+                    st.write(data["quality_assessment"])
+
                 if data.get("sources"):
                     st.subheader("Sources")
                     for source in data["sources"]:

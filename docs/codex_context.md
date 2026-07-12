@@ -29,26 +29,25 @@ Known current state:
 - service-oriented structure exists for chat, retrieval, document loading, and LLM access;
 - reservoir-oriented response schema includes intent, sources, reservoir, calculation result, observations, anomaly flags, and warnings;
 - reservoir methodology documents exist in `data/docs/`;
-- local retrieval, citations, refusal behavior, tests, and eval cases are implemented for the methodology RAG skeleton;
+- local Unicode-aware retrieval, citations, refusal behavior, tests, and English/Russian eval cases are implemented for the methodology RAG skeleton;
+- sanitized thesis methodology is available in `data/docs/thesis_satellite_pipeline.md`, with data-use boundaries documented in `docs/thesis_source_audit.md`;
 - SQLite-backed synthetic reservoir data tools are implemented for profiles, observations, passport-area comparison, and anomaly flagging.
+- grounded monitoring report generation is implemented through `/chat` with methodology sources, warnings, and limitations.
+- thesis-informed automatic QC is implemented in `quality_service.py` and exposed in observation/report responses;
+- `gee_import_service.py` validates sanitized GEE CSV files without persisting them or accepting sensitive columns.
 
 Important: do not connect this MVP to real government, operational, private, or destructive systems.
+Do not copy raw dissertation coordinates, real observation rows, passport values, or preliminary calculated levels into the public demo database.
 
 ## Next Best Task
 
-Next recommended coding branch:
-
-```text
-feature/monitoring-report-generation
-```
-
 Next three implementation tasks:
 
-1. Implement `report_service.py`.
-2. Generate short monitoring reports from methodology context, reservoir profile, observations, comparisons, anomaly flags, warnings, and limitations.
-3. Add tests/evals for report generation and refusal of exact water-level claims.
+1. Run a manual Streamlit smoke test for monitoring report generation.
+2. Add latency/basic run logging and extend prompt-injection evaluation coverage.
+3. Add CI for pytest and the eval runner.
 
-The previous recommended tasks, service-layer stabilization, mock/LLM settings, methodology RAG, and reservoir demo data tools, are implemented for the current MVP baseline.
+The previous recommended tasks, service-layer stabilization, mock/LLM settings, methodology RAG, reservoir demo data tools, and monitoring report generation, are implemented for the current MVP baseline.
 
 ## Target Folder Structure
 
