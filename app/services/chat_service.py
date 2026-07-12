@@ -3,6 +3,12 @@ from calendar import monthrange
 
 from app.models.schemas import ChatIntent, ChatResponse, SourceReference
 from app.services.llm_client import generate_llm_answer, get_llm_mode
+from app.services.quality_service import assess_observation_quality
+from app.services.report_service import (
+    DEMO_DATA_WARNING,
+    WATER_LEVEL_WARNING,
+    build_monitoring_report,
+)
 from app.services.reservoir_service import (
     compare_area_to_passport,
     extract_reservoir_name,
@@ -17,21 +23,10 @@ UNSUPPORTED_ANSWER = (
     "or demo data to answer this question."
 )
 NO_CONTEXT_WARNING = "No relevant reservoir monitoring methodology context was found."
-REPORT_GENERATION_WARNING = (
-    "Monitoring report generation is planned for Phase 4. The current MVP can "
-    "return methodology answers, reservoir profiles, observations, comparisons, "
-    "and anomaly flags from synthetic demo data."
+UNKNOWN_RESERVOIR_WARNING = (
+    "No matching reservoir was found in the synthetic demo data."
 )
-UNKNOWN_RESERVOIR_WARNING = "No matching reservoir was found in the synthetic demo data."
 NO_OBSERVATIONS_WARNING = "No matching satellite observations were found."
-DEMO_DATA_WARNING = (
-    "Reservoir records and satellite observations are synthetic demo data, not "
-    "official operational records."
-)
-WATER_LEVEL_WARNING = (
-    "Do not treat satellite-derived water area as an exact water level without "
-    "a validated area-level relationship and human review."
-)
 
 OBSERVATION_PATTERN = re.compile(
     r"\b(observation|observations|observed|date|period|latest|"
@@ -123,13 +118,7 @@ async def process_chat(message: str) -> ChatResponse:
 
     intent = classify_intent(message)
     if intent == "report_generation":
-        return ChatResponse(
-            user_message=message,
-            answer=UNSUPPORTED_ANSWER,
-            mode=get_llm_mode(),
-            intent="unsupported",
-            warnings=[REPORT_GENERATION_WARNING],
-        )
+        return _handle_report_generation(message)
     if intent == "reservoir_lookup":
         return _handle_reservoir_lookup(message)
     if intent == "observation_analysis":
@@ -257,11 +246,16 @@ def _handle_observation_analysis(message: str) -> ChatResponse:
         start_date=start_date,
         end_date=end_date,
     )
+    quality_assessment = assess_observation_quality(
+        observations,
+        passport_area_km2=reservoir.passport_area_km2,
+    )
     answer = _build_observation_answer(
         reservoir.name,
         observations,
         calculation_result,
         anomaly_count=len(anomaly_flags),
+        quality_status=quality_assessment.status,
         start_date=start_date,
         end_date=end_date,
     )
@@ -275,7 +269,53 @@ def _handle_observation_analysis(message: str) -> ChatResponse:
         calculation_result=calculation_result,
         observations=observations,
         anomaly_flags=anomaly_flags,
+        quality_assessment=quality_assessment,
         warnings=[DEMO_DATA_WARNING, WATER_LEVEL_WARNING],
+    )
+
+
+def _handle_report_generation(message: str) -> ChatResponse:
+    reservoir_name = extract_reservoir_name(message)
+    if not reservoir_name:
+        return ChatResponse(
+            user_message=message,
+            answer=UNSUPPORTED_ANSWER,
+            mode=get_llm_mode(),
+            intent="unsupported",
+            warnings=[UNKNOWN_RESERVOIR_WARNING],
+        )
+
+    start_date, end_date = _parse_date_range(message)
+    report = build_monitoring_report(
+        reservoir_name,
+        start_date=start_date,
+        end_date=end_date,
+    )
+    if not report:
+        return ChatResponse(
+            user_message=message,
+            answer=(
+                f"No satellite observations were found for {reservoir_name}"
+                f"{_format_period_suffix(start_date, end_date)}."
+            ),
+            mode=get_llm_mode(),
+            intent="report_generation",
+            reservoir=get_reservoir_summary(reservoir_name),
+            warnings=[NO_OBSERVATIONS_WARNING, DEMO_DATA_WARNING],
+        )
+
+    return ChatResponse(
+        user_message=message,
+        answer=report.text,
+        mode=get_llm_mode(),
+        intent="report_generation",
+        sources=report.sources,
+        reservoir=report.reservoir,
+        calculation_result=report.calculation_result,
+        observations=report.observations,
+        anomaly_flags=report.anomaly_flags,
+        quality_assessment=report.quality_assessment,
+        warnings=report.warnings,
     )
 
 
@@ -312,6 +352,7 @@ def _build_observation_answer(
     calculation_result,
     *,
     anomaly_count: int,
+    quality_status: str,
     start_date: str | None,
     end_date: str | None,
 ) -> str:
@@ -332,6 +373,9 @@ def _build_observation_answer(
         )
 
     if calculation_result:
-        lines.append(f"\nLatest passport-area comparison: {calculation_result.explanation}")
+        lines.append(
+            f"\nLatest passport-area comparison: {calculation_result.explanation}"
+        )
     lines.append(f"Anomaly flags found: {anomaly_count}.")
+    lines.append(f"Automatic QC status: {quality_status}.")
     return "\n".join(lines)

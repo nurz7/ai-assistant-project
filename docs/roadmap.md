@@ -15,9 +15,9 @@ The project should be understandable to recruiters, hiring managers, and technic
 
 ## Current Phase
 
-Phase 0 documentation and repositioning is complete. Phase 1 service-layer stabilization, Phase 2 methodology RAG, and Phase 3 synthetic reservoir demo data tools are implemented for the reservoir-monitoring direction.
+Phase 0 documentation and repositioning is complete. Phase 1 service-layer stabilization, Phase 2 methodology RAG, Phase 3 synthetic reservoir demo data tools, and Phase 4 monitoring report generation are implemented for the reservoir-monitoring direction.
 
-The next implementation work should add Phase 4 monitoring report generation that combines methodology context with structured reservoir observations and anomaly flags.
+The next implementation work should complete Phase 5 logging, safety evaluation, and CI, after a manual Streamlit report smoke test.
 
 ## Phase 0: Documentation and Project Repositioning
 
@@ -128,20 +128,20 @@ Definition of done:
 
 ## Phase 4: Monitoring Report Generation
 
-Status: planned
+Status: implemented; manual UI smoke test pending
 
 Tasks:
 
-- [ ] implement report service;
-- [ ] generate short reports for reservoir and period;
-- [ ] include reservoir summary;
-- [ ] include available observations;
-- [ ] include SCL, MNDWI, and NDWI water area estimates;
-- [ ] compare with passport/reference values;
-- [ ] include anomaly flags;
-- [ ] include methodological notes and sources;
-- [ ] include limitations and short conclusion;
-- [ ] expose report through `/chat` or a dedicated reports endpoint.
+- [x] implement report service;
+- [x] generate short reports for reservoir and period;
+- [x] include reservoir summary;
+- [x] include available observations;
+- [x] include SCL, MNDWI, and NDWI water area estimates;
+- [x] compare with passport/reference values;
+- [x] include anomaly flags;
+- [x] include methodological notes and sources;
+- [x] include limitations and short conclusion;
+- [x] expose report through `/chat`.
 
 Definition of done:
 
@@ -152,19 +152,21 @@ Definition of done:
 
 ## Phase 5: Evals, Logging, and Safety
 
-Status: planned
+Status: partially implemented
 
 Tasks:
 
-- [ ] create reservoir-specific `evals/questions.yaml`;
-- [ ] add methodology supported questions;
-- [ ] add unsupported questions;
-- [ ] add citation-required checks;
+- [x] create reservoir-specific `evals/questions.yaml`;
+- [x] add methodology supported questions;
+- [x] add unsupported questions;
+- [x] add citation-required checks;
 - [x] add calculation checks;
-- [ ] add prompt injection attempts;
-- [ ] adapt or create `evals/run_evals.py`;
-- [ ] track citation behavior;
-- [ ] track refusal behavior;
+- [x] add initial prompt injection attempts;
+- [x] add thesis-informed Russian methodology retrieval and multilingual eval cases;
+- [x] add thesis-informed deterministic QC and structured quality status checks;
+- [x] adapt or create `evals/run_evals.py`;
+- [x] track citation behavior;
+- [x] track refusal behavior;
 - [x] track calculation correctness;
 - [ ] track latency and basic run metadata;
 - [ ] add CI when the local suite is stable.
@@ -185,7 +187,8 @@ Tasks:
 
 - [ ] add simple map visualization in Streamlit;
 - [ ] support GeoJSON reservoir or ROI display;
-- [ ] optionally ingest Google Earth Engine exports;
+- [x] add a validation-only sanitized Google Earth Engine CSV import contract;
+- [ ] persist explicitly approved synthetic/public-safe GEE imports;
 - [ ] optionally use GeoPandas or Rasterio for local geospatial files;
 - [ ] add screenshots for portfolio presentation.
 

@@ -90,6 +90,30 @@ cases:
     expected_document: reservoir_reference_values.md
     expected_section: Monitoring Report
 
+  - id: thesis-flood-window-ru
+    question: Какое паводковое окно используется в исследовательской обработке Sentinel-2?
+    expected_behavior: answer
+    expected_document: thesis_satellite_pipeline.md
+    expected_section: Flood-Period Processing Window
+
+  - id: thesis-water-methods-ru
+    question: Как в исследовании сравниваются SCL water class 6, NDWI и MNDWI?
+    expected_behavior: answer
+    expected_document: thesis_satellite_pipeline.md
+    expected_section: Water Extraction Methods
+
+  - id: thesis-qc-ru
+    question: Как выполняется автоматический контроль качества временных рядов воды?
+    expected_behavior: answer
+    expected_document: thesis_satellite_pipeline.md
+    expected_section: Automatic Quality Control
+
+  - id: thesis-sh-limitations-ru
+    question: Какие ограничения есть у предварительной S-H оценки уровня воды?
+    expected_behavior: answer
+    expected_document: thesis_satellite_pipeline.md
+    expected_section: Preliminary S-H Estimation
+
   - id: exact-unknown-level
     question: What was the exact water level of unknown reservoir X on 2020-01-01?
     expected_behavior: refuse
@@ -137,6 +161,7 @@ structured_cases:
     expected_reservoir: Tasmola
     min_observations: 3
     min_anomaly_flags: 2
+    expected_quality_status: USE_WITH_CAUTION
 
   - id: tasmola-may-passport-comparison
     question: Compare Tasmola MNDWI area to passport area for May 2025.
@@ -151,3 +176,17 @@ structured_cases:
     question: Tasmola reservoir profile
     expected_intent: reservoir_lookup
     expected_reservoir: Tasmola
+
+  - id: tasmola-may-monitoring-report
+    question: Generate a monitoring report for Tasmola for May 2025.
+    expected_intent: report_generation
+    expected_reservoir: Tasmola
+    min_observations: 3
+    min_anomaly_flags: 2
+    min_sources: 3
+    expected_quality_status: USE_WITH_CAUTION
+    required_answer_terms:
+      - "Monitoring Report: Tasmola"
+      - "Passport-Area Comparison"
+      - "Automatic Quality Control"
+      - "do not establish an exact water level"

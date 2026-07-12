@@ -1,0 +1,4 @@
+reservoir_name,observation_date,source,scl_water_area_km2,mndwi_area_km2,ndwi_area_km2,cloud_percent,roi_area_km2,method_version
+Tasmola Demo,2025-05-03,Sentinel-2 L2A,3.82,3.94,3.75,8.5,5.10,demo-v0.2
+Tasmola Demo,2025-05-13,Sentinel-2 L2A,4.05,4.18,3.95,12.0,5.10,demo-v0.2
+Tasmola Demo,2025-05-23,Sentinel-2 L2A,2.10,3.65,2.25,54.0,5.10,demo-v0.2

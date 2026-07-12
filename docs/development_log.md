@@ -175,11 +175,65 @@ citation_rate: 100.0%
 PASS
 ```
 
-Next:
+### 2026-07-12 - Monitoring Report Generation
 
-- add monitoring report generation;
-- combine methodology context with structured observations;
-- add report tests and evals.
+Status: automated checks passed; manual UI smoke test pending
+
+Done:
+
+- added `app/services/report_service.py`;
+- combined reservoir profile, Sentinel-2 observations, passport-area comparison, anomaly flags, methodology sources, warnings, limitations, and conclusion;
+- exposed monitoring report generation through `/chat`;
+- preserved deterministic mock-mode behavior without an API key;
+- added report service tests and a structured report eval case;
+- kept the exact-water-level limitation explicit.
+
+Verification:
+
+```text
+python -m pytest -q
+36 passed
+
+python -m evals.run_evals
+PASS
+```
+
+### 2026-07-12 - Thesis Methodology Audit and Multilingual RAG
+
+Status: automated checks passed
+
+Done:
+
+- audited the owner-provided dissertation archive without committing raw research data;
+- added a public-safe methodology summary for the Sentinel-2, GEE, QC, and preliminary S-H workflow;
+- documented which thesis materials are excluded from the public MVP;
+- changed lexical tokenization to support Unicode and Cyrillic;
+- added Russian token normalization, safety patterns, retrieval tests, and eval cases;
+- ignored the source dissertation archive in Git.
+
+Verification:
+
+```text
+python -m pytest -q
+38 passed
+
+python -m evals.run_evals
+Cases: 28
+PASS
+```
+
+### 2026-07-12 - Thesis-Informed QC and Safe GEE Import
+
+Status: implemented; automated checks passed
+
+Done:
+
+- added deterministic quality assessment for observation time series;
+- exposed QC status and reasons through `/chat`, reports, and Streamlit;
+- added transparent demo thresholds for USE, USE_WITH_CAUTION, ROI review, and low-signal exclusion;
+- added a validation-only GEE CSV importer with a strict public-safe schema;
+- rejected coordinates, real identifiers, levels, and volumes at the import boundary;
+- added a synthetic GEE sample and focused service tests.
 
 ## Current State
 
@@ -191,29 +245,24 @@ Working or already present in the repository:
 - mock/LLM client;
 - service-layer structure for chat, retrieval, document loading, and LLM access;
 - reservoir methodology retrieval with citations;
+- thesis-informed English/Russian methodology retrieval with citations;
 - SQLite-backed reservoir profile and observation lookup;
 - passport-area comparison and basic anomaly flags;
-- refusal behavior for unsupported and not-yet-implemented report workflows;
+- grounded monitoring report generation through `/chat`;
 - reservoir-specific tests and eval cases.
 
 Not yet implemented for the reservoir domain:
 
-- report service;
+- latency/basic run logging and CI;
 - optional GIS visualization.
 
 ## Current Next Steps
 
-Recommended next branch:
-
-```text
-feature/monitoring-report-generation
-```
-
 Next implementation tasks:
 
-1. Implement `report_service.py`.
-2. Generate short monitoring reports from methodology context and structured observations.
-3. Add tests/evals for report generation and exact-water-level refusal behavior.
+1. Run a manual Streamlit report smoke test.
+2. Add latency/basic run logging and extend safety evals.
+3. Add CI for pytest and the eval runner.
 
 ## Progress Checklist
 
@@ -241,7 +290,7 @@ Next implementation tasks:
 - [x] Streamlit app exists
 - [x] citations confirmed for reservoir methodology answers
 - [x] reservoir observation output added
-- [ ] report output added
+- [x] report output added
 - [ ] optional map visualization added
 
 ### RAG
@@ -263,9 +312,9 @@ Next implementation tasks:
 
 ### Reports
 
-- [ ] report service added
-- [ ] short monitoring report generated
-- [ ] limitations and sources included
+- [x] report service added
+- [x] short monitoring report generated
+- [x] limitations and sources included
 
 ### Evaluation
 
