@@ -62,7 +62,7 @@ async def request_app(
     return start["status"], json.loads(response_body)
 
 
-class ChatIntegrationTests(unittest.TestCase):
+class ApiIntegrationTests(unittest.TestCase):
     def test_supported_question_flows_through_asgi_app(self) -> None:
         status_code, data = asyncio.run(
             request_app(
@@ -103,3 +103,53 @@ class ChatIntegrationTests(unittest.TestCase):
 
         self.assertEqual(status_code, 422)
         self.assertEqual(data["detail"][0]["type"], "value_error")
+
+    def test_monitoring_report_endpoint_returns_grounded_data(self) -> None:
+        status_code, data = asyncio.run(
+            request_app(
+                "POST",
+                "/reports",
+                json_body={
+                    "reservoir_name": "Tasmola",
+                    "start_date": "2025-05-01",
+                    "end_date": "2025-05-31",
+                },
+            )
+        )
+
+        self.assertEqual(status_code, 200)
+        self.assertEqual(data["reservoir"]["name"], "Tasmola")
+        self.assertEqual(len(data["observations"]), 3)
+        self.assertGreaterEqual(len(data["sources"]), 3)
+        self.assertIn("Monitoring Report: Tasmola", data["text"])
+
+    def test_monitoring_report_endpoint_rejects_inverted_date_range(self) -> None:
+        status_code, data = asyncio.run(
+            request_app(
+                "POST",
+                "/reports",
+                json_body={
+                    "reservoir_name": "Tasmola",
+                    "start_date": "2025-05-31",
+                    "end_date": "2025-05-01",
+                },
+            )
+        )
+
+        self.assertEqual(status_code, 422)
+        self.assertEqual(data["detail"][0]["type"], "value_error")
+
+    def test_monitoring_report_endpoint_returns_not_found_without_demo_data(self) -> None:
+        status_code, data = asyncio.run(
+            request_app(
+                "POST",
+                "/reports",
+                json_body={"reservoir_name": "Unknown Reservoir"},
+            )
+        )
+
+        self.assertEqual(status_code, 404)
+        self.assertEqual(
+            data["detail"],
+            "No synthetic reservoir report data was found for this request.",
+        )

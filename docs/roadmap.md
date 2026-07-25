@@ -141,7 +141,7 @@ Tasks:
 - [x] include anomaly flags;
 - [x] include methodological notes and sources;
 - [x] include limitations and short conclusion;
-- [x] expose report through `/chat`.
+- [x] expose report through `/chat` and typed `POST /reports`.
 
 Definition of done:
 

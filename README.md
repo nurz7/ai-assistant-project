@@ -84,6 +84,8 @@ Users can request a short monitoring report for a selected reservoir and period.
 - short conclusion;
 - sources.
 
+The same read-only report workflow is available through `POST /reports` for API consumers.
+
 ### 6. Evaluation and Safety
 
 The project should include evaluation questions for:

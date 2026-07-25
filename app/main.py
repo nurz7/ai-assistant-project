@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 
 from app.api.routes.chat import router as chat_router
+from app.api.routes.reports import router as reports_router
 
 APP_VERSION = "0.4.0"
 
@@ -11,6 +12,7 @@ app = FastAPI(
 )
 
 app.include_router(chat_router)
+app.include_router(reports_router)
 
 
 @app.get("/")
