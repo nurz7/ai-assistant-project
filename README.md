@@ -84,6 +84,8 @@ Users can request a short monitoring report for a selected reservoir and period.
 - short conclusion;
 - sources.
 
+The same read-only report workflow is available through `POST /reports` for API consumers.
+
 ### 6. Evaluation and Safety
 
 The project should include evaluation questions for:
@@ -107,10 +109,17 @@ Implemented in the existing repository:
 - reservoir-oriented chat response schema with `intent`, `sources`, `reservoir`, `calculation_result`, `observations`, `anomaly_flags`, and `warnings`;
 - reservoir methodology documents for Sentinel-2, NDWI, MNDWI, SCL water class, ROI, cloud filtering, area calculation, reference values, and reporting;
 - local methodology retrieval with source citations;
+- thesis-informed multilingual methodology retrieval for English and Russian questions;
+- documented source audit that excludes real coordinates, observations, and preliminary levels from the public demo;
 - SQLite schema and synthetic seed data for demo reservoir observations;
 - read-only reservoir tools for profiles, observations, passport-area comparison, and anomaly flagging;
-- refusal behavior for unsupported, unsafe, and not-yet-implemented report-generation requests;
-- reservoir-specific test and evaluation dataset with 24 methodology cases plus structured-data checks.
+- thesis-informed automatic QC with transparent demo status categories;
+- sanitized, validation-only GEE CSV import contract with a synthetic sample;
+- grounded monitoring report generation from methodology and structured data;
+- refusal behavior for unsupported and unsafe requests;
+- prompt-injection and destructive-action refusal checks in the evaluation suite;
+- structured `/chat` run metadata and latency logs without request or response content;
+- reservoir-specific test and evaluation dataset with 28 methodology cases plus structured-data and report checks.
 
 Repository repositioning completed in this branch:
 
@@ -120,9 +129,9 @@ Repository repositioning completed in this branch:
 
 Not yet implemented for the reservoir domain:
 
-- monitoring report service;
-- report-generation evaluation cases;
 - GIS visualization.
+
+GitHub Actions validates the repository on pushes and pull requests by running the test suite and reservoir evaluation checks.
 
 ## Planned Roadmap
 
@@ -177,7 +186,7 @@ Not yet implemented for the reservoir domain:
 - FastAPI
 - Streamlit
 - Pydantic
-- SQLite planned for reservoir demo data
+- SQLite for synthetic reservoir demo data
 - Local lexical RAG first, embeddings optional later
 - LLM API integration with mock mode
 - pytest
