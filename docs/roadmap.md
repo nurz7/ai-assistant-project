@@ -168,7 +168,7 @@ Tasks:
 - [x] track citation behavior;
 - [x] track refusal behavior;
 - [x] track calculation correctness;
-- [ ] track latency and basic run metadata;
+- [x] track latency and safe basic run metadata for `/chat`.
 - [x] add GitHub Actions CI for tests and eval runner.
 
 Definition of done:
