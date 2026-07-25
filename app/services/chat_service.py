@@ -23,6 +23,10 @@ UNSUPPORTED_ANSWER = (
     "or demo data to answer this question."
 )
 NO_CONTEXT_WARNING = "No relevant reservoir monitoring methodology context was found."
+UNSAFE_REQUEST_WARNING = (
+    "This prototype does not disclose credentials or system instructions and does not "
+    "perform destructive data actions."
+)
 UNKNOWN_RESERVOIR_WARNING = (
     "No matching reservoir was found in the synthetic demo data."
 )
@@ -34,6 +38,21 @@ OBSERVATION_PATTERN = re.compile(
     re.IGNORECASE,
 )
 REPORT_PATTERN = re.compile(r"\b(generate|create|write)\b.*\breport\b", re.IGNORECASE)
+UNSAFE_INSTRUCTION_PATTERN = re.compile(
+    r"\b(ignore|disregard|override|bypass)\b.{0,80}"
+    r"\b(instruction|instructions|rule|rules|safety|system)\b",
+    re.IGNORECASE,
+)
+SENSITIVE_DISCLOSURE_PATTERN = re.compile(
+    r"\b(api[ _-]?key|secret|password|access token|system prompt|"
+    r"developer message|hidden instructions?)\b",
+    re.IGNORECASE,
+)
+DESTRUCTIVE_ACTION_PATTERN = re.compile(
+    r"\b(delete|drop|truncate|insert|update|alter)\b.{0,100}"
+    r"\b(database|db|table|reservoir|observation|record|data)\b",
+    re.IGNORECASE,
+)
 METHODOLOGY_QUESTION_PATTERN = re.compile(
     r"^\s*(what|why|how|which|define|explain)\b",
     re.IGNORECASE,
@@ -116,6 +135,15 @@ def classify_intent(message: str) -> ChatIntent:
 async def process_chat(message: str) -> ChatResponse:
     """Run the chat workflow and build the public API response."""
 
+    if _is_unsafe_request(message):
+        return ChatResponse(
+            user_message=message,
+            answer=UNSUPPORTED_ANSWER,
+            mode=get_llm_mode(),
+            intent="unsupported",
+            warnings=[UNSAFE_REQUEST_WARNING],
+        )
+
     intent = classify_intent(message)
     if intent == "report_generation":
         return _handle_report_generation(message)
@@ -151,6 +179,14 @@ async def process_chat(message: str) -> ChatResponse:
         mode=get_llm_mode(),
         intent=intent,
         sources=sources,
+    )
+
+
+def _is_unsafe_request(message: str) -> bool:
+    return bool(
+        UNSAFE_INSTRUCTION_PATTERN.search(message)
+        or SENSITIVE_DISCLOSURE_PATTERN.search(message)
+        or DESTRUCTIVE_ACTION_PATTERN.search(message)
     )
 
 

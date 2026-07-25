@@ -115,6 +115,7 @@ Implemented in the existing repository:
 - sanitized, validation-only GEE CSV import contract with a synthetic sample;
 - grounded monitoring report generation from methodology and structured data;
 - refusal behavior for unsupported and unsafe requests;
+- prompt-injection and destructive-action refusal checks in the evaluation suite;
 - structured `/chat` run metadata and latency logs without request or response content;
 - reservoir-specific test and evaluation dataset with 28 methodology cases plus structured-data and report checks.
 

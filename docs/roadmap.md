@@ -161,7 +161,7 @@ Tasks:
 - [x] add unsupported questions;
 - [x] add citation-required checks;
 - [x] add calculation checks;
-- [x] add initial prompt injection attempts;
+- [x] add prompt-injection and destructive-action refusal checks;
 - [x] add thesis-informed Russian methodology retrieval and multilingual eval cases;
 - [x] add thesis-informed deterministic QC and structured quality status checks;
 - [x] adapt or create `evals/run_evals.py`;
