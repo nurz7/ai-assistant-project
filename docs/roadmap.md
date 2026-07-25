@@ -169,7 +169,7 @@ Tasks:
 - [x] track refusal behavior;
 - [x] track calculation correctness;
 - [ ] track latency and basic run metadata;
-- [ ] add CI when the local suite is stable.
+- [x] add GitHub Actions CI for tests and eval runner.
 
 Definition of done:
 

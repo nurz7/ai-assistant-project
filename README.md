@@ -126,8 +126,9 @@ Repository repositioning completed in this branch:
 Not yet implemented for the reservoir domain:
 
 - latency and structured run logging;
-- CI automation;
 - GIS visualization.
+
+GitHub Actions validates the repository on pushes and pull requests by running the test suite and reservoir evaluation checks.
 
 ## Planned Roadmap
 
